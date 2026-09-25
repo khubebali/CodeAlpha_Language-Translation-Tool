@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Language Translation Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6edf9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .translator-card {
+            max-width: 950px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 35px 40px 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 20, 50, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.2s;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(42, 109, 244, 0.12);
+            flex-wrap: wrap;
+        }
+
+        .header i {
+            font-size: 28px;
+            color: #2a6df4;
+            background: rgba(42, 109, 244, 0.1);
+            padding: 10px;
+            border-radius: 14px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0a1a2f;
+            letter-spacing: -0.5px;
+        }
+
+        .header .badge {
+            margin-left: auto;
+            background: #2a6df4;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 40px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #4a6a8a;
+        }
+
+        .header .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+            display: inline-block;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .lang-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            background: rgba(42, 109, 244, 0.04);
+            padding: 16px 20px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(42, 109, 244, 0.08);
+        }
+
+        .lang-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1 1 200px;
+        }
+
+        .lang-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1f3b5c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .lang-group label i {
+            color: #2a6df4;
+            font-size: 14px;
+        }
+
+        .lang-group select {
+            flex: 1;
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1.5px solid rgba(42, 109, 244, 0.15);
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a1a2f;
+            outline: none;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 100px;
+        }
+
+        .lang-group select:focus {
+            border-color: #2a6df4;
+            box-shadow: 0 0 0 3px rgba(42, 109, 244, 0.12);
+        }
+
+        .swap-btn {
+            background: white;
+            border: 1.5px solid rgba(42, 109, 244, 0.15);
+            color: #2a6df4;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .swap-btn:hover {
+            background: #2a6df4;
+            color: white;
+            transform: rotate(180deg);
+            border-color: #2a6df4;
+        }
+
+        .text-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .text-box {
+            background: white;
+            border-radius: 20px;
+            padding: 18px 22px;
+            border: 1.5px solid rgba(200, 215, 235, 0.3);
+            transition: 0.2s;
+        }
+
+        .text-box:focus-within {
+            border-color: #2a6df4;
+            box-shadow: 0 4px 16px rgba(42, 109, 244, 0.06);
+        }
+
+        .text-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .text-box-header span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a6a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .text-box-header .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .text-box-header .actions button {
+            background: transparent;
+            border: none;
+            color: #6a8aaa;
+            width: 34px;
+            height: 34px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        .text-box-header .actions button:hover {
+            background: rgba(42, 109, 244, 0.08);
+            color: #2a6df4;
+        }
+
+        .text-box-header .actions button:active {
+            transform: scale(0.92);
+        }
+
+        .text-box-header .actions button.recording {
+            background: #e74c3c;
+            color: white;
+            animation: pulse-rec 1s infinite;
+        }
+
+        @keyframes pulse-rec {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        textarea, .output-text {
+            width: 100%;
+            font-size: 16px;
+            line-height: 1.7;
+            border: none;
+            outline: none;
+            resize: vertical;
+            min-height: 110px;
+            padding: 4px 0;
+            background: transparent;
+            color: #0a1a2f;
+            font-family: inherit;
+        }
+
+        textarea::placeholder {
+            color: #a0b8d0;
+            font-weight: 400;
+        }
+
+        .output-text {
+            min-height: 110px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #0a1a2f;
+        }
+
+        .output-placeholder {
+            color: #a0b8d0;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 18px;
+            gap: 12px;
+        }
+
+        .translate-btn {
+            background: #1a3b5c;
+            border: none;
+            padding: 12px 36px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 20px -4px rgba(26, 59, 92, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .translate-btn:hover {
+            background: #2a6df4;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -6px rgba(42, 109, 244, 0.35);
+        }
+
+        .translate-btn:active {
+            transform: scale(0.96);
+        }
+
+        .translate-btn i {
+            font-size: 15px;
+        }
+
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .status-msg {
+            font-size: 13px;
+            color: #2a6df4;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        .copy-feedback {
+            font-size: 12px;
+            color: #1f7b4d;
+            background: #e0f3e9;
+            padding: 4px 14px;
+            border-radius: 40px;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+
+        .copy-feedback.show {
+            opacity: 1;
+        }
+
+        .service-badge {
+            font-size: 11px;
+            color: #6a8aaa;
+            background: rgba(42, 109, 244, 0.06);
+            padding: 2px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(42, 109, 244, 0.1);
+        }
+
+        @media (max-width: 640px) {
+            .translator-card {
+                padding: 22px 18px;
+            }
+            .lang-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .lang-group {
+                flex: 1;
+            }
+            .swap-btn {
+                align-self: center;
+            }
+            .translate-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .action-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .status-area {
+                justify-content: center;
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-text {
+            color: #c0392b !important;
+        }
+        .error-text i {
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="translator-card">
+        <div class="header">
+            <i class="fas fa-language"></i>
+            <h1>Language Translation Tool</h1>
+            <span class="badge"><i class="fas fa-check-circle"></i> LIVE</span>
+            <span class="status-dot">
+                <span class="dot"></span>
+                <span id="serverStatus">Connected</span>
+            </span>
+        </div>
+
+        <div class="lang-selector">
+            <div class="lang-group">
+                <label><i class="fas fa-arrow-right-from-bracket"></i> Source</label>
+                <select id="sourceLang">
+                    {% for code, name in languages.items() %}
+                    <option value="{{ code }}" {% if code == 'en' %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="swap-btn" id="swapLangBtn" title="Swap languages">
+                <i class="fas fa-arrow-right-arrow-left"></i>
+            </button>
+
+            <div class="lang-group">
+                <label><i class="fas fa-arrow-right-to-bracket"></i> Target</label>
+                <select id="targetLang">
+                    {% for code, name in languages.items() %}
+                    <option value="{{ code }}" {% if code == 'ur' %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="text-panel">
+            <div class="text-box">
+                <div class="text-box-header">
+                    <span><i class="far fa-edit"></i> ENTER TEXT</span>
+                    <div class="actions">
+                        <button id="speechToTextBtn" title="Voice input (speech-to-text)"><i class="fas fa-microphone"></i></button>
+                        <button id="clearInputBtn" title="Clear text"><i class="fas fa-eraser"></i></button>
+                    </div>
+                </div>
+                <textarea id="inputText" placeholder="Type or speak your text here…"></textarea>
+            </div>
+
+            <div class="text-box">
+                <div class="text-box-header">
+                    <span><i class="fas fa-flag"></i> TRANSLATION</span>
+                    <div class="actions">
+                        <button id="copyOutputBtn" title="Copy translation"><i class="fas fa-copy"></i></button>
+                        <button id="speakOutputBtn" title="Listen (text-to-speech)"><i class="fas fa-volume-up"></i></button>
+                    </div>
+                </div>
+                <div id="outputText" class="output-text output-placeholder">
+                    <i class="fas fa-arrow-right" style="margin-right:8px;"></i>Translation will appear here
+                </div>
+                <div style="margin-top:8px; display:flex; justify-content:flex-end;">
+                    <span id="serviceBadge" class="service-badge"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-row">
+            <button class="translate-btn" id="translateBtn">
+                <i class="fas fa-rotate-right"></i> Translate
+            </button>
+            <div class="status-area">
+                <span id="statusMsg" class="status-msg"></span>
+                <span class="copy-feedback" id="copyFeedback"><i class="fas fa-check-circle"></i> Copied!</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // DOM refs
+            const sourceSelect = document.getElementById('sourceLang');
+            const targetSelect = document.getElementById('targetLang');
+            const inputText = document.getElementById('inputText');
+            const outputDiv = document.getElementById('outputText');
+            const translateBtn = document.getElementById('translateBtn');
+            const copyBtn = document.getElementById('copyOutputBtn');
+            const speakBtn = document.getElementById('speakOutputBtn');
+            const speechBtn = document.getElementById('speechToTextBtn');
+            const clearBtn = document.getElementById('clearInputBtn');
+            const swapBtn = document.getElementById('swapLangBtn');
+            const statusMsg = document.getElementById('statusMsg');
+            const copyFeedback = document.getElementById('copyFeedback');
+            const serviceBadge = document.getElementById('serviceBadge');
+            const serverStatus = document.getElementById('serverStatus');
+
+            // API URL
+            const API_URL = '/api/translate';
+
+            // Check server health
+            async function checkServerHealth() {
+                try {
+                    const response = await fetch('/api/health');
+                    if (response.ok) {
+                        serverStatus.textContent = 'Connected';
+                        serverStatus.style.color = '#2ecc71';
+                    } else {
+                        serverStatus.textContent = 'Error';
+                        serverStatus.style.color = '#e74c3c';
+                    }
+                } catch (error) {
+                    serverStatus.textContent = 'Offline';
+                    serverStatus.style.color = '#e74c3c';
+                    console.error('Server health check failed:', error);
+                }
+            }
+
+            checkServerHealth();
+            setInterval(checkServerHealth, 30000);
+
+            // Translation function
+            async function translateText(text, source, target) {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        source: source,
+                        target: target
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            }
+
+            // UI Helpers
+            function setOutput(text, isError = false) {
+                if (isError) {
+                    outputDiv.innerHTML = `<i class="fas fa-exclamation-circle" style="margin-right:8px;"></i> ${text}`;
+                    outputDiv.className = 'output-text error-text';
+                } else if (text && text.trim()) {
+                    outputDiv.textContent = text;
+                    outputDiv.className = 'output-text';
+                } else {
+                    outputDiv.innerHTML = `<i class="fas fa-arrow-right" style="margin-right:8px;"></i>Translation will appear here`;
+                    outputDiv.className = 'output-text output-placeholder';
+                }
+            }
+
+            function setStatus(msg, isError = false) {
+                statusMsg.textContent = msg;
+                statusMsg.style.color = isError ? '#c0392b' : '#2a6df4';
+                if (!msg) statusMsg.textContent = '';
+            }
+
+            function showCopyFeedback() {
+                copyFeedback.classList.add('show');
+                setTimeout(() => copyFeedback.classList.remove('show'), 2000);
+            }
+
+            function setLoading(isLoading) {
+                translateBtn.disabled = isLoading;
+                if (isLoading) {
+                    translateBtn.innerHTML = `<i class="fas fa-spinner spinner"></i> Translating...`;
+                } else {
+                    translateBtn.innerHTML = `<i class="fas fa-rotate-right"></i> Translate`;
+                }
+            }
+
+            function setServiceBadge(service) {
+                if (service) {
+                    serviceBadge.textContent = `📍 ${service}`;
+                    serviceBadge.style.display = 'inline';
+                } else {
+                    serviceBadge.textContent = '';
+                    serviceBadge.style.display = 'none';
+                }
+            }
+
+            // Main Translate Action
+            async function handleTranslate() {
+                const text = inputText.value;
+                const source = sourceSelect.value;
+                const target = targetSelect.value;
+
+                if (!text.trim()) {
+                    setOutput('Please enter some text to translate.', true);
+                    setStatus('⚠️ No text entered', true);
+                    setServiceBadge('');
+                    return;
+                }
+
+                setLoading(true);
+                setStatus('⏳ Translating...');
+                setOutput('');
+                setServiceBadge('');
+
+                try {
+                    const result = await translateText(text, source, target);
+
+                    if (result.success) {
+                        setOutput(result.translated_text);
+                        setStatus('✅ Translation complete');
+                        if (result.service) {
+                            setServiceBadge(result.service);
+                        }
+                    } else {
+                        setOutput(`Error: ${result.error || 'Unknown error'}`, true);
+                        setStatus('❌ Translation failed', true);
+                    }
+                } catch (error) {
+                    console.error('Translation error:', error);
+                    setOutput(`Error: ${error.message}`, true);
+                    setStatus('❌ Translation failed', true);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // Copy
+            function copyTranslation() {
+                const text = outputDiv.textContent;
+                if (!text || text.includes('Translation will appear') || text.includes('Error')) {
+                    const input = inputText.value.trim();
+                    if (input) {
+                        navigator.clipboard.writeText(input).then(() => {
+                            showCopyFeedback();
+                            setStatus('📋 Input copied', false);
+                        }).catch(() => {
+                            copyToClipboard(input);
+                        });
+                    } else {
+                        setStatus('⚠️ Nothing to copy', true);
+                    }
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyFeedback();
+                    setStatus('📋 Copied!', false);
+                }).catch(() => {
+                    copyToClipboard(text);
+                });
+            }
+
+            function copyToClipboard(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopyFeedback();
+                    setStatus('📋 Copied!', false);
+                } catch (e) {
+                    setStatus('❌ Copy failed', true);
+                }
+                document.body.removeChild(textarea);
+            }
+
+            // Text-to-Speech
+            function speakOutput() {
+                let text = outputDiv.textContent;
+                if (!text || text.includes('Translation will appear') || text.includes('Error')) {
+                    text = inputText.value.trim();
+                    if (!text) {
+                        setStatus('⚠️ No text to speak', true);
+                        return;
+                    }
+                }
+
+                if (!('speechSynthesis' in window)) {
+                    setStatus('❌ TTS not supported', true);
+                    alert('Text-to-speech is not supported in your browser.');
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    setStatus('⏹️ Stopped');
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                const targetLang = targetSelect.value || 'en';
+                utterance.lang = targetLang;
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // Try to find matching voice
+                const voices = window.speechSynthesis.getVoices();
+                let matchedVoice = voices.find(v => v.lang.startsWith(targetLang));
+                if (matchedVoice) {
+                    utterance.voice = matchedVoice;
+                }
+
+                utterance.onstart = () => {
+                    setStatus('🔊 Speaking...');
+                    speakBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                };
+
+                utterance.onend = () => {
+                    setStatus('✅ Speech complete');
+                    speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                };
+
+                utterance.onerror = () => {
+                    setStatus('❌ TTS error', true);
+                    speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // Load voices
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+
+            // Speech-to-Text
+            let recognition = null;
+            let isRecording = false;
+
+            function startSpeechToText() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!SpeechRecognition) {
+                    setStatus('❌ Speech recognition not supported', true);
+                    alert('Speech-to-text is not supported in your browser.');
+                    return;
+                }
+
+                if (isRecording && recognition) {
+                    recognition.stop();
+                    isRecording = false;
+                    speechBtn.classList.remove('recording');
+                    speechBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    setStatus('⏹️ Recording stopped');
+                    return;
+                }
+
+                recognition = new SpeechRecognition();
+                recognition.lang = sourceSelect.value || 'en';
+                recognition.interimResults = true;
+                recognition.continuous = false;
+                recognition.maxAlternatives = 1;
+
+                isRecording = true;
+                speechBtn.classList.add('recording');
+                speechBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                setStatus('🎤 Listening... Speak now');
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        inputText.value = finalTranscript;
+                        setStatus('✅ Voice captured');
+                        setTimeout(handleTranslate, 500);
+                    } else if (interimTranscript) {
+                        inputText.value = interimTranscript;
+                        setStatus('🎤 Listening...');
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    let errorMsg = event.error;
+                    if (errorMsg === 'not-allowed') {
+                        errorMsg = 'Microphone access denied. Please allow microphone access.';
+                    } else if (errorMsg === 'no-speech') {
+                        errorMsg = 'No speech detected. Please try again.';
+                    }
+                    setStatus(`⚠️ ${errorMsg}`, true);
+                    isRecording = false;
+                    speechBtn.classList.remove('recording');
+                    speechBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    speechBtn.classList.remove('recording');
+                    speechBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    if (statusMsg.textContent.includes('Listening')) {
+                        setStatus('⏹️ Stopped');
+                    }
+                };
+
+                recognition.start();
+            }
+
+            // Swap Languages
+            function swapLanguages() {
+                const src = sourceSelect.value;
+                const tgt = targetSelect.value;
+                sourceSelect.value = tgt;
+                targetSelect.value = src;
+                setStatus('🔄 Languages swapped');
+                setServiceBadge('');
+                if (inputText.value.trim()) {
+                    setTimeout(handleTranslate, 300);
+                }
+            }
+
+            // Clear
+            function clearAll() {
+                inputText.value = '';
+                setOutput('');
+                setStatus('');
+                setServiceBadge('');
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                }
+                if (isRecording && recognition) {
+                    recognition.stop();
+                    isRecording = false;
+                    speechBtn.classList.remove('recording');
+                    speechBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                }
+            }
+
+            // Event Bindings
+            translateBtn.addEventListener('click', handleTranslate);
+            copyBtn.addEventListener('click', copyTranslation);
+            speakBtn.addEventListener('click', speakOutput);
+            speechBtn.addEventListener('click', startSpeechToText);
+            clearBtn.addEventListener('click', clearAll);
+            swapBtn.addEventListener('click', swapLanguages);
+
+            // Ctrl+Enter to translate
+            inputText.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    handleTranslate();
+                }
+            });
+
+            // Auto-translate on language change
+            let autoTranslateTimeout;
+            [sourceSelect, targetSelect].forEach(sel => {
+                sel.addEventListener('change', () => {
+                    clearTimeout(autoTranslateTimeout);
+                    setServiceBadge('');
+                    if (inputText.value.trim()) {
+                        autoTranslateTimeout = setTimeout(handleTranslate, 500);
+                    }
+                });
+            });
+
+            // Initial status
+            setStatus('✨ Ready to translate');
+            setServiceBadge('');
+
+            console.log('Language Translation Tool initialized successfully!');
+        })();
+    </script>
+</body>
+</html>
